@@ -10,22 +10,25 @@
 
     <!--Description-->
     
+        <meta name="description" content="hexo 命令解释 
+hexo new [layout] &amp;lt; title &amp;gt; 理解为 创建一个 在 ${hexoDir}/source/.drafts或者${hexoDir}/source/.posts或者${hexoDir}/source/ 目录下的一个${fileName}.md 文">
+    
 
     <!--Author-->
     
-        <meta name="author" content="John Doe">
+        <meta name="author" content="xiurierye">
     
 
     <!--Open Graph Title-->
     
-        <meta property="og:title" content="myHelloWorld"/>
+        <meta property="og:title" content="myTest"/>
     
 
     <!--Open Graph Description-->
     
 
     <!--Open Graph Site Name-->
-    <meta property="og:site_name" content="Hexo"/>
+    <meta property="og:site_name" content="税太重"/>
 
     <!--Type page-->
     
@@ -40,7 +43,7 @@
 
     <!-- Title -->
     
-    <title>myHelloWorld - Hexo</title>
+    <title>myTest - 税太重</title>
 
     <!-- Bootstrap Core CSS -->
     <link href="//maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css" rel="stylesheet"/>
@@ -127,7 +130,7 @@
                     </li>
                 
                     <li>
-                        <a href="https://github.com/klugjo/hexo-theme-clean-blog">
+                        <a href="https://github.com/xiurierye">
                             
                                 <i class="fa fa-github fa-stack-2x"></i>
                             
@@ -150,7 +153,7 @@
         <div class="row">
             <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
                 <div class="post-heading">
-                    <h1>myHelloWorld</h1>
+                    <h1>myTest</h1>
                     
                     <span class="meta">
                         <!-- Date and Author -->
@@ -178,7 +181,12 @@
 
             <!-- Post Main Content -->
             <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
-                
+                <p>hexo 命令解释 </p>
+<p>hexo new [layout] &lt; title &gt; 理解为 创建一个 在 ${hexoDir}/source/<em>.drafts或者${hexoDir}/source/</em>.posts或者${hexoDir}/source/ 目录下的一个${fileName}.md 文件，可以理解为第一步操作，注意在命令行中 不要夹md后缀</p>
+<p>hexo publish [layout] &lt; title &gt; 理解为 发布一个位于${hexoDir}/source/<em>.drafts或者${hexoDir}/source/</em>.posts或者${hexoDir}/source/ 目录下的某个${fileName}.md 文件，  同样不要加md后缀</p>
+<p>我用的比较多的是如下顺序</p>
+<p>hexo new draft myPost<br>然后编辑 预览  定稿后<br>hexo publish myPost  可以打成  hexo publish draft myPost  这样hexo 就吧位于draft目录下的myPost文件 发布到post文件下 ，随下一次发布文章到网上</p>
+
 
                 
             </div>
@@ -225,7 +233,7 @@
 
                     
                 </ul>
-                <p class="copyright text-muted">&copy; 2017 John Doe<br></p>
+                <p class="copyright text-muted">&copy; 2017 xiurierye<br></p>
                 <p class="copyright text-muted">Original Theme <a target="_blank" href="http://startbootstrap.com/template-overviews/clean-blog/">Clean Blog</a> from <a href="http://startbootstrap.com/" target="_blank">Start Bootstrap</a></p>
                 <p class="copyright text-muted">Adapted for <a target="_blank" href="https://hexo.io/">Hexo</a> by <a href="http://www.codeblocq.com/" target="_blank">Jonathan Klughertz</a></p>
             </div>
