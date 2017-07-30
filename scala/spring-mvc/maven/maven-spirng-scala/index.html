@@ -13,6 +13,13 @@
 
 
 
+  
+  
+    
+    
+  <script src="/lib/pace/pace.min.js?v=1.0.2"></script>
+  <link href="/lib/pace/pace-theme-minimal.min.css?v=1.0.2" rel="stylesheet">
+
 
 
 
@@ -103,7 +110,7 @@
 <meta property="og:site_name" content="Les impôts sont trop lourds">
 <meta property="og:description" content="pom配置依赖管理1234567891011121314&amp;lt;!-- spring-mcv 由于项目的历史原因，这里用一个老版本  --&amp;gt;&amp;lt;spring-version&amp;gt;3.2.9.RELEASE&amp;lt;/spring-version&amp;gt;&amp;lt;scala-version&amp;gt;2.10.4&amp;lt;/scala-version&amp;gt;&amp;lt;!-- dependencies">
 <meta property="og:locale" content="en">
-<meta property="og:updated_time" content="2017-07-30T03:55:40.000Z">
+<meta property="og:updated_time" content="2017-07-30T06:30:22.000Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="maven搭建基于spring-mvc的scala web项目">
 <meta name="twitter:description" content="pom配置依赖管理1234567891011121314&amp;lt;!-- spring-mcv 由于项目的历史原因，这里用一个老版本  --&amp;gt;&amp;lt;spring-version&amp;gt;3.2.9.RELEASE&amp;lt;/spring-version&amp;gt;&amp;lt;scala-version&amp;gt;2.10.4&amp;lt;/scala-version&amp;gt;&amp;lt;!-- dependencies">
@@ -247,6 +254,16 @@
               <i class="menu-item-icon fa fa-fw fa-user"></i> <br />
             
             About
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-sitemap">
+          <a href="/sitemap.xml" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-sitemap"></i> <br />
+            
+            Sitemap
           </a>
         </li>
       
@@ -394,6 +411,8 @@
 <h2 id="返回集合"><a href="#返回集合" class="headerlink" title="返回集合"></a>返回集合</h2><p>返回一个字符串并不能满足日常开发需要，如何从后端返回一个集合呢。<br>这里先给出解决方案，原理会在日后解释。</p>
 <blockquote><p>使用<a href="https://github.com/FasterXML/jackson-module-scala" target="_blank" rel="external">jackson-module-scala</a></p>
 </blockquote>
+<div class="note info"><p>使用<a href="https://github.com/FasterXML/jackson-module-scala" target="_blank" rel="external">jackson-module-scala</a></p>
+</div>
 <h3 id="依赖"><a href="#依赖" class="headerlink" title="依赖"></a>依赖</h3><figure class="highlight xml"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line"><span class="tag">&lt;<span class="name">dependency</span>&gt;</span></div><div class="line">  <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>com.fasterxml.jackson.module<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></div><div class="line">  <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>jackson-module-scala_2.10<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></div><div class="line">  <span class="tag">&lt;<span class="name">version</span>&gt;</span>2.8.9<span class="tag">&lt;/<span class="name">version</span>&gt;</span></div><div class="line"><span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></div></pre></td></tr></table></figure>
 <h3 id="xml配置"><a href="#xml配置" class="headerlink" title="xml配置"></a>xml配置</h3><p>在spring的配置文件中加入<br><figure class="highlight xml"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div></pre></td><td class="code"><pre><div class="line"><span class="tag">&lt;<span class="name">mvc:annotation-driven</span>&gt;</span>                                                                           </div><div class="line">    <span class="tag">&lt;<span class="name">mvc:message-converters</span>&gt;</span>                                                                      </div><div class="line">        <span class="tag">&lt;<span class="name">bean</span> <span class="attr">class</span>=<span class="string">"org.springframework.http.converter.json.MappingJackson2HttpMessageConverter"</span>&gt;</span></div><div class="line">            <span class="tag">&lt;<span class="name">property</span> <span class="attr">name</span>=<span class="string">"objectMapper"</span>&gt;</span>                                                        </div><div class="line">                <span class="tag">&lt;<span class="name">ref</span> <span class="attr">bean</span>=<span class="string">"JsonMapper"</span>/&gt;</span>                                                          </div><div class="line">            <span class="tag">&lt;/<span class="name">property</span>&gt;</span>                                                                                                                                                   </div><div class="line">            <span class="tag">&lt;<span class="name">property</span> <span class="attr">name</span>=<span class="string">"supportedMediaTypes"</span>&gt;</span>                                                 </div><div class="line">                <span class="tag">&lt;<span class="name">list</span>&gt;</span>                                                                            </div><div class="line">                    <span class="tag">&lt;<span class="name">value</span>&gt;</span>application/json; charset=UTF-8<span class="tag">&lt;/<span class="name">value</span>&gt;</span>                                </div><div class="line">                <span class="tag">&lt;/<span class="name">list</span>&gt;</span>                                                                           </div><div class="line">            <span class="tag">&lt;/<span class="name">property</span>&gt;</span>                                                                           </div><div class="line">        <span class="tag">&lt;/<span class="name">bean</span>&gt;</span>                                                                                   </div><div class="line">    <span class="tag">&lt;/<span class="name">mvc:message-converters</span>&gt;</span>                                                                     </div><div class="line"><span class="tag">&lt;/<span class="name">mvc:annotation-driven</span>&gt;</span></div></pre></td></tr></table></figure></p>
 <h3 id="bean配置"><a href="#bean配置" class="headerlink" title="bean配置"></a>bean配置</h3><p>个人喜欢java配置，下面是我的配置类<br><figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div></pre></td><td class="code"><pre><div class="line"><span class="meta">@Configuration</span></div><div class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">BeanConfig</span> </span>&#123;</div><div class="line">    <span class="meta">@Bean</span>(name = <span class="string">"JsonMapper"</span>)</div><div class="line">    <span class="function"><span class="keyword">public</span> ObjectMapper <span class="title">jsonMapper</span><span class="params">()</span></span>&#123;</div><div class="line">        ObjectMapper objectMapper = <span class="keyword">new</span> ObjectMapper();</div><div class="line"></div><div class="line">        objectMapper.disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES);</div><div class="line">        objectMapper.registerModule(<span class="keyword">new</span> DefaultScalaModule());</div><div class="line"></div><div class="line">        <span class="keyword">return</span> objectMapper;</div><div class="line">    &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
@@ -416,6 +435,22 @@
     <div>
       
         
+  <div style="padding: 10px 0; margin: 20px auto; width: 90%; text-align: center;">
+    <div>坚持原创技术分享-我们相互鼓励</div>
+    <button id="rewardButton" disable="enable" onclick="var qr = document.getElementById('QR'); if (qr.style.display === 'none') {qr.style.display='block';} else {qr.style.display='none'}">
+      <span>赏</span>
+    </button>
+    <div id="QR" style="display: none;">
+      
+        <div id="wechat" style="display: inline-block">
+          <img id="wechat_qr" src="/images/wechats.jpg" alt="xiurierye WeChat Pay"/>
+          <p>微信打赏</p>
+        </div>
+      
+      
+    </div>
+  </div>
+
 
       
     </div>
@@ -569,6 +604,17 @@
         
 
         <div class="links-of-author motion-element">
+          
+            
+              <span class="links-of-author-item">
+                <a href="https://github.com/xiurierye/" target="_blank" title="GitHub">
+                  
+                    <i class="fa fa-fw fa-github"></i>
+                  
+                  GitHub
+                </a>
+              </span>
+            
           
         </div>
 
