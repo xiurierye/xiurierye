@@ -110,7 +110,7 @@
 <meta property="og:site_name" content="Les impôts sont trop lourds">
 <meta property="og:description" content="pom配置依赖管理1234567891011121314&amp;lt;!-- spring-mcv 由于项目的历史原因，这里用一个老版本  --&amp;gt;&amp;lt;spring-version&amp;gt;3.2.9.RELEASE&amp;lt;/spring-version&amp;gt;&amp;lt;scala-version&amp;gt;2.10.4&amp;lt;/scala-version&amp;gt;&amp;lt;!-- dependencies">
 <meta property="og:locale" content="en">
-<meta property="og:updated_time" content="2017-07-30T14:02:45.000Z">
+<meta property="og:updated_time" content="2017-07-31T15:35:38.000Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="maven搭建基于spring-mvc的scala web项目">
 <meta name="twitter:description" content="pom配置依赖管理1234567891011121314&amp;lt;!-- spring-mcv 由于项目的历史原因，这里用一个老版本  --&amp;gt;&amp;lt;spring-version&amp;gt;3.2.9.RELEASE&amp;lt;/spring-version&amp;gt;&amp;lt;scala-version&amp;gt;2.10.4&amp;lt;/scala-version&amp;gt;&amp;lt;!-- dependencies">
@@ -410,8 +410,6 @@
 <h3 id="插件管理"><a href="#插件管理" class="headerlink" title="插件管理"></a>插件管理</h3><p>如果项目中混用了 java 与scala，则需要配置如下execution<br><figure class="highlight xml"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div></pre></td><td class="code"><pre><div class="line"><span class="comment">&lt;!-- plugins--&gt;</span></div><div class="line"><span class="tag">&lt;<span class="name">plugin</span>&gt;</span>                                         </div><div class="line">    <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>net.alchim31.maven<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span>        </div><div class="line">    <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>scala-maven-plugin<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span>  </div><div class="line">    <span class="tag">&lt;<span class="name">executions</span>&gt;</span>                                 </div><div class="line">        <span class="tag">&lt;<span class="name">execution</span>&gt;</span>                              </div><div class="line">            <span class="tag">&lt;<span class="name">id</span>&gt;</span>scala-compile-first<span class="tag">&lt;/<span class="name">id</span>&gt;</span>         </div><div class="line">            <span class="tag">&lt;<span class="name">phase</span>&gt;</span>process-resources<span class="tag">&lt;/<span class="name">phase</span>&gt;</span>     </div><div class="line">            <span class="tag">&lt;<span class="name">goals</span>&gt;</span>                              </div><div class="line">                <span class="tag">&lt;<span class="name">goal</span>&gt;</span>add-source<span class="tag">&lt;/<span class="name">goal</span>&gt;</span>          </div><div class="line">                <span class="tag">&lt;<span class="name">goal</span>&gt;</span>compile<span class="tag">&lt;/<span class="name">goal</span>&gt;</span>             </div><div class="line">            <span class="tag">&lt;/<span class="name">goals</span>&gt;</span>                             </div><div class="line">        <span class="tag">&lt;/<span class="name">execution</span>&gt;</span>                             </div><div class="line">        <span class="tag">&lt;<span class="name">execution</span>&gt;</span>                              </div><div class="line">            <span class="tag">&lt;<span class="name">id</span>&gt;</span>scala-test-compile<span class="tag">&lt;/<span class="name">id</span>&gt;</span>          </div><div class="line">            <span class="tag">&lt;<span class="name">phase</span>&gt;</span>process-test-resources<span class="tag">&lt;/<span class="name">phase</span>&gt;</span></div><div class="line">            <span class="tag">&lt;<span class="name">goals</span>&gt;</span>                              </div><div class="line">                <span class="tag">&lt;<span class="name">goal</span>&gt;</span>testCompile<span class="tag">&lt;/<span class="name">goal</span>&gt;</span>         </div><div class="line">            <span class="tag">&lt;/<span class="name">goals</span>&gt;</span>                             </div><div class="line">        <span class="tag">&lt;/<span class="name">execution</span>&gt;</span>                             </div><div class="line">    <span class="tag">&lt;/<span class="name">executions</span>&gt;</span>                                </div><div class="line"><span class="tag">&lt;/<span class="name">plugin</span>&gt;</span></div></pre></td></tr></table></figure></p>
 <h3 id="代码片段"><a href="#代码片段" class="headerlink" title="代码片段"></a>代码片段</h3><figure class="highlight scala"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div></pre></td><td class="code"><pre><div class="line"><span class="meta">@Controller</span></div><div class="line"><span class="meta">@RequestMapping</span>(value = <span class="type">Array</span>(<span class="string">"/"</span>))</div><div class="line"><span class="class"><span class="keyword">class</span> <span class="title">HelloWorldController</span> </span>&#123;</div><div class="line">  <span class="meta">@RequestMapping</span>(value = <span class="type">Array</span>(<span class="string">"/helloWorld"</span>))</div><div class="line">  <span class="meta">@ResponseBody</span></div><div class="line">  <span class="function"><span class="keyword">def</span> <span class="title">home=</span> "<span class="title">Hello</span> <span class="title">World</span>"</span></div><div class="line">&#125;</div></pre></td></tr></table></figure>
 <h2 id="返回集合"><a href="#返回集合" class="headerlink" title="返回集合"></a>返回集合</h2><p>返回一个字符串并不能满足日常开发需要，如何从后端返回一个集合呢。<br>这里先给出解决方案，原理会在日后解释。</p>
-<blockquote><p>使用<a href="https://github.com/FasterXML/jackson-module-scala" target="_blank" rel="external">jackson-module-scala</a></p>
-</blockquote>
 <div class="note info"><p>使用<a href="https://github.com/FasterXML/jackson-module-scala" target="_blank" rel="external">jackson-module-scala</a></p>
 </div>
 <h3 id="依赖"><a href="#依赖" class="headerlink" title="依赖"></a>依赖</h3><figure class="highlight xml"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line"><span class="tag">&lt;<span class="name">dependency</span>&gt;</span></div><div class="line">  <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>com.fasterxml.jackson.module<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></div><div class="line">  <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>jackson-module-scala_2.10<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></div><div class="line">  <span class="tag">&lt;<span class="name">version</span>&gt;</span>2.8.9<span class="tag">&lt;/<span class="name">version</span>&gt;</span></div><div class="line"><span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></div></pre></td></tr></table></figure>
@@ -494,6 +492,10 @@
 
           <div class="post-nav-prev post-nav-item">
             
+              <a href="/scala/jackson/spring-mvc/maven/spring-mvc-scala-output/" rel="prev" title="Spring中jackson-module-scala的源码分析（一）">
+                Spring中jackson-module-scala的源码分析（一） <i class="fa fa-chevron-right"></i>
+              </a>
+            
           </div>
         </div>
       
@@ -572,7 +574,7 @@
           
             <div class="site-state-item site-state-posts">
               <a href="/archives/">
-                <span class="site-state-item-count">3</span>
+                <span class="site-state-item-count">6</span>
                 <span class="site-state-item-name">posts</span>
               </a>
             </div>
@@ -583,7 +585,7 @@
             
             <div class="site-state-item site-state-categories">
               <a href="/categories/index.html">
-                <span class="site-state-item-count">5</span>
+                <span class="site-state-item-count">8</span>
                 <span class="site-state-item-name">categories</span>
               </a>
             </div>
@@ -594,7 +596,7 @@
             
             <div class="site-state-item site-state-tags">
               <a href="/tags/index.html">
-                <span class="site-state-item-count">5</span>
+                <span class="site-state-item-count">6</span>
                 <span class="site-state-item-name">tags</span>
               </a>
             </div>

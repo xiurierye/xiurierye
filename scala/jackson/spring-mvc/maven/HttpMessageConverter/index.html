@@ -1,0 +1,951 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next muse use-motion" lang="en">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+
+  
+  
+    
+    
+  <script src="/lib/pace/pace.min.js?v=1.0.2"></script>
+  <link href="/lib/pace/pace-theme-minimal.min.css?v=1.0.2" rel="stylesheet">
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+  
+  
+  
+  
+
+  
+    
+    
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+    
+    <link href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.1" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="scala,jackson,spring-mvc,maven" />
+
+
+
+
+
+  <link rel="alternate" href="/atom.xml" title="Les impôts sont trop lourds" type="application/atom+xml" />
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/images/favicon.ico?v=5.1.1" />
+
+
+
+
+
+
+<meta name="description" content="spring mvc的http请求代码分析一个最简单的GET请求先执行一次最简单的http GET请求指定profile为withoutJackson，配置并启动tomcat，端口8080，在postman中发送一个GET请求，url为localhost:8080/java/get?str=java。得到hello world: scala查看控制台（log level已设置为trace，去掉一些">
+<meta name="keywords" content="scala,jackson,spring-mvc,maven">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Spring中jackson-module-scala的源码分析（二）">
+<meta property="og:url" content="http://xiurierye.github.io/scala/jackson/spring-mvc/maven/HttpMessageConverter/index.html">
+<meta property="og:site_name" content="Les impôts sont trop lourds">
+<meta property="og:description" content="spring mvc的http请求代码分析一个最简单的GET请求先执行一次最简单的http GET请求指定profile为withoutJackson，配置并启动tomcat，端口8080，在postman中发送一个GET请求，url为localhost:8080/java/get?str=java。得到hello world: scala查看控制台（log level已设置为trace，去掉一些">
+<meta property="og:locale" content="en">
+<meta property="og:image" content="http://xiurierye.github.io/scala/jackson/spring-mvc/maven/HttpMessageConverter/HandlerMethodArgumentResolverComposite--LinkedList.png">
+<meta property="og:image" content="http://xiurierye.github.io/scala/jackson/spring-mvc/maven/HttpMessageConverter/HandlerMethodReturnValueHandler--LinkedList.png">
+<meta property="og:image" content="http://xiurierye.github.io/scala/jackson/spring-mvc/maven/HttpMessageConverter/ParameterNameDiscoverer--LinkedList.png">
+<meta property="og:image" content="http://xiurierye.github.io/scala/jackson/spring-mvc/maven/HttpMessageConverter/ServletInvocableHandlerMethod--Hierarchy.png">
+<meta property="og:image" content="http://xiurierye.github.io/scala/jackson/spring-mvc/maven/HttpMessageConverter/StringHttpMessageConverter--Hierarchy.png">
+<meta property="og:image" content="http://xiurierye.github.io/scala/jackson/spring-mvc/maven/HttpMessageConverter/Interface-Diagram-HttpMessageConverter.png">
+<meta property="og:updated_time" content="2017-08-07T03:31:29.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Spring中jackson-module-scala的源码分析（二）">
+<meta name="twitter:description" content="spring mvc的http请求代码分析一个最简单的GET请求先执行一次最简单的http GET请求指定profile为withoutJackson，配置并启动tomcat，端口8080，在postman中发送一个GET请求，url为localhost:8080/java/get?str=java。得到hello world: scala查看控制台（log level已设置为trace，去掉一些">
+<meta name="twitter:image" content="http://xiurierye.github.io/scala/jackson/spring-mvc/maven/HttpMessageConverter/HandlerMethodArgumentResolverComposite--LinkedList.png">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Muse',
+    sidebar: {"position":"left","display":"hide","offset":12,"offset_float":0,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    motion: true,
+    duoshuo: {
+      userId: '0',
+      author: 'Author'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://xiurierye.github.io/scala/jackson/spring-mvc/maven/HttpMessageConverter/"/>
+
+
+
+
+
+  <title>Spring中jackson-module-scala的源码分析（二） | Les impôts sont trop lourds</title>
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="en">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail ">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">Les impôts sont trop lourds</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle">T . T</p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            Home
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th-large"></i> <br />
+            
+            Categories
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            Archives
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            Tags
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br />
+            
+            About
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+    <link itemprop="mainEntityOfPage" href="http://xiurierye.github.io/scala/jackson/spring-mvc/maven/HttpMessageConverter/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="xiurierye">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/profilephoto.png">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Les impôts sont trop lourds">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">Spring中jackson-module-scala的源码分析（二）</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Posted on</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2017-08-01T09:40:44+08:00">
+                2017-08-01
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">In</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/scala/" itemprop="url" rel="index">
+                    <span itemprop="name">scala</span>
+                  </a>
+                </span>
+
+                
+                
+                  , 
+                
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/scala/jackson/" itemprop="url" rel="index">
+                    <span itemprop="name">jackson</span>
+                  </a>
+                </span>
+
+                
+                
+                  , 
+                
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/scala/jackson/spring-mvc/" itemprop="url" rel="index">
+                    <span itemprop="name">spring-mvc</span>
+                  </a>
+                </span>
+
+                
+                
+                  , 
+                
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/scala/jackson/spring-mvc/maven/" itemprop="url" rel="index">
+                    <span itemprop="name">maven</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+              <span class="post-comments-count">
+                <span class="post-meta-divider">|</span>
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-comment-o"></i>
+                </span>
+                <a href="/scala/jackson/spring-mvc/maven/HttpMessageConverter/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count disqus-comment-count"
+                        data-disqus-identifier="scala/jackson/spring-mvc/maven/HttpMessageConverter/" itemprop="commentCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h1 id="spring-mvc的http请求代码分析"><a href="#spring-mvc的http请求代码分析" class="headerlink" title="spring mvc的http请求代码分析"></a>spring mvc的http请求代码分析</h1><h2 id="一个最简单的GET请求"><a href="#一个最简单的GET请求" class="headerlink" title="一个最简单的GET请求"></a>一个最简单的GET请求</h2><p>先执行一次最简单的http GET请求<br>指定profile为<em>withoutJackson</em>，配置并启动tomcat，端口8080，在<a href="https://www.getpostman.com/postman" target="_blank" rel="external">postman</a>中发送一个GET请求，url为localhost:8080/java/get?str=java。得到<code>hello world: scala</code><br>查看控制台（log level已设置为trace，去掉一些无用log）</p>
+<a id="more"></a>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div></pre></td><td class="code"><pre><div class="line">15:43:04.382 TRACE o.s.w.s.DispatcherServlet - Bound request context to thread: org.apache.catalina.connector.RequestFacade@6f787d04</div><div class="line">15:43:04.384 DEBUG o.s.w.s.DispatcherServlet - DispatcherServlet with name &apos;spring-dispatcher&apos; processing GET request for [/java/get]</div><div class="line">15:43:04.386 TRACE o.s.w.s.DispatcherServlet - Testing handler map [org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerMapping@7c55397] in DispatcherServlet with name &apos;spring-dispatcher&apos;</div><div class="line">15:43:04.388 DEBUG o.s.w.s.m.m.a.RequestMappingHandlerMapping - Looking up handler method for path /java/get</div><div class="line">15:43:04.393 TRACE o.s.w.s.m.m.a.RequestMappingHandlerMapping - Found 1 matching mapping(s) for [/java/get] : [&#123;[/java/get],methods=[GET]&#125;]</div><div class="line">15:43:04.393 DEBUG o.s.w.s.m.m.a.RequestMappingHandlerMapping - Returning handler method [public java.lang.String x.h.p.m.BasicController.get(java.lang.String)]</div><div class="line">15:43:04.393 DEBUG o.s.b.f.s.DefaultListableBeanFactory - Returning cached instance of singleton bean &apos;basicController&apos;</div><div class="line">15:43:04.394 TRACE o.s.w.s.DispatcherServlet - Testing handler adapter [org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerAdapter@57fb1e2c]</div><div class="line">15:43:04.394 DEBUG o.s.w.s.DispatcherServlet - Last-Modified value for [/java/get] is: -1</div><div class="line">15:43:04.415 TRACE o.s.w.m.s.HandlerMethodArgumentResolverComposite - Testing if argument resolver [org.springframework.web.method.annotation.RequestParamMethodArgumentResolver@218a1c72] supports [class java.lang.String]</div><div class="line">15:43:04.422 TRACE o.s.w.m.s.HandlerMethodArgumentResolverComposite - Testing if argument resolver [org.springframework.web.method.annotation.RequestParamMapMethodArgumentResolver@226bbde6] supports [class java.lang.String]</div><div class="line">...</div><div class="line">15:43:04.430 TRACE o.s.w.m.s.HandlerMethodArgumentResolverComposite - Testing if argument resolver [org.springframework.web.method.annotation.RequestParamMethodArgumentResolver@52d8f48] supports [class java.lang.String]</div><div class="line">15:43:04.443 TRACE o.s.w.s.m.m.a.ServletInvocableHandlerMethod - Invoking [BasicController.get] method with arguments [java]</div><div class="line">15:43:04.443 TRACE o.s.w.s.m.m.a.ServletInvocableHandlerMethod - Method [get] returned [hello world: java]</div><div class="line">15:43:04.475 DEBUG o.s.w.s.m.m.a.RequestResponseBodyMethodProcessor - Written [hello world: java] as &quot;text/plain&quot; using [org.springframework.http.converter.StringHttpMessageConverter@2b7ec6de]</div><div class="line">15:43:04.475 DEBUG o.s.w.s.DispatcherServlet - Null ModelAndView returned to DispatcherServlet with name &apos;spring-dispatcher&apos;: assuming HandlerAdapter completed request handling</div><div class="line">15:43:04.475 TRACE o.s.w.s.DispatcherServlet - Cleared thread-bound request context: org.apache.catalina.connector.RequestFacade@6f787d04</div><div class="line">15:43:04.475 DEBUG o.s.w.s.DispatcherServlet - Successfully completed request</div><div class="line">15:43:04.477 TRACE o.s.w.c.s.XmlWebApplicationContext - Publishing event in WebApplicationContext for namespace &apos;spring-dispatcher-servlet&apos;: ServletRequestHandledEvent: url=[/java/get]; client=[0:0:0:0:0:0:0:1]; method=[GET]; servlet=[spring-dispatcher]; session=[null]; user=[null]; time=[108ms]; status=[OK]</div></pre></td></tr></table></figure>
+<p>跟着日志我们来走一遍spring的DispatcherServlet从接受请求到响应的过程</p>
+<h3 id="DispatcherServlet"><a href="#DispatcherServlet" class="headerlink" title="DispatcherServlet"></a><em>DispatcherServlet</em></h3><p>spring mvc接受http请求的入口是<strong>DispatcherServlet</strong>类的doDispatch方法，<br><figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div><div class="line">43</div><div class="line">44</div></pre></td><td class="code"><pre><div class="line"><span class="comment">/**</span></div><div class="line"> * Process the actual dispatching to the handler.</div><div class="line"> * The handler will be obtained by applying the servlet's HandlerMappings in order.</div><div class="line"> * The HandlerAdapter will be obtained by querying the servlet's installed HandlerAdapters</div><div class="line"> * to find the first that supports the handler class.</div><div class="line"> * All HTTP methods are handled by this method. It's up to HandlerAdapters or handlers</div><div class="line"> * ...</div><div class="line">*/</div><div class="line"><span class="function"><span class="keyword">protected</span> <span class="keyword">void</span> <span class="title">doDispatch</span><span class="params">(HttpServletRequest request, HttpServletResponse response)</span> <span class="keyword">throws</span> Exception </span>&#123;</div><div class="line">  HttpServletRequest processedRequest = request;</div><div class="line">  HandlerExecutionChain mappedHandler = <span class="keyword">null</span>;</div><div class="line">  <span class="keyword">boolean</span> multipartRequestParsed = <span class="keyword">false</span>;</div><div class="line">  WebAsyncManager asyncManager = WebAsyncUtils.getAsyncManager(request);</div><div class="line">  <span class="keyword">try</span> &#123;</div><div class="line">  	ModelAndView mv = <span class="keyword">null</span>;</div><div class="line">  	Exception dispatchException = <span class="keyword">null</span>;</div><div class="line">  	<span class="keyword">try</span> &#123;</div><div class="line">  		processedRequest = checkMultipart(request);</div><div class="line">  		multipartRequestParsed = (processedRequest != request);</div><div class="line">  		<span class="comment">// Determine handler for the current request.</span></div><div class="line">  		mappedHandler = getHandler(processedRequest);</div><div class="line">  		<span class="keyword">if</span> (mappedHandler == <span class="keyword">null</span> || mappedHandler.getHandler() == <span class="keyword">null</span>) &#123;</div><div class="line">  			noHandlerFound(processedRequest, response);</div><div class="line">  			<span class="keyword">return</span>;</div><div class="line">  		&#125;</div><div class="line">  		<span class="comment">// Determine handler adapter for the current request.</span></div><div class="line">  		HandlerAdapter ha = getHandlerAdapter(mappedHandler.getHandler());</div><div class="line">  		...  </div><div class="line">  		<span class="comment">// Actually invoke the handler.</span></div><div class="line">  		mv = ha.handle(processedRequest, response, mappedHandler.getHandler());</div><div class="line">  		...</div><div class="line">  	&#125;</div><div class="line">  	<span class="keyword">catch</span> (Exception ex) &#123;</div><div class="line">  		...</div><div class="line">  	&#125;</div><div class="line">  	processDispatchResult(processedRequest, response, mappedHandler, mv, dispatchException);</div><div class="line">  &#125;</div><div class="line">  <span class="keyword">catch</span> (Exception ex) &#123;</div><div class="line">  	...</div><div class="line">  &#125;</div><div class="line">  <span class="keyword">finally</span> &#123;</div><div class="line">  	...</div><div class="line">  &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
+<blockquote>
+<p><strong>mappedHandler = getHandler(processedRequest)</strong><br>根据请求中地址找到对应的Controller方法（这些信息在servlet启动时已经加载）和HttpServletReqeust对象，装配一个HandlerExecutionChain，chain由路径指向的Controller 和一组拦截处理器组成，对应log日志中的如下信息：</p>
+</blockquote>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line">15:46:14.403 DEBUG o.s.w.s.DispatcherServlet - DispatcherServlet with name &apos;spring-dispatcher&apos; processing GET request for [/java/get]</div><div class="line">15:46:20.119 TRACE o.s.w.s.DispatcherServlet - Testing handler map [org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerMapping@4db78b17] in DispatcherServlet with name &apos;spring-dispatcher&apos;</div><div class="line">15:46:20.123 DEBUG o.s.w.s.m.m.a.RequestMappingHandlerMapping - Looking up handler method for path /java/get</div><div class="line">15:46:20.133 TRACE o.s.w.s.m.m.a.RequestMappingHandlerMapping - Found 1 matching mapping(s) for [/java/get] : [&#123;[/java/get],methods=[GET]&#125;]</div><div class="line">15:46:20.134 DEBUG o.s.w.s.m.m.a.RequestMappingHandlerMapping - Returning handler method [public java.lang.String x.h.p.m.BasicController.get(java.lang.String)]</div><div class="line">15:46:20.134 DEBUG o.s.b.f.s.DefaultListableBeanFactory - Returning cached instance of singleton bean &apos;basicController&apos;</div></pre></td></tr></table></figure>
+<blockquote>
+<p><strong>HandlerAdapter ha = getHandlerAdapter(mappedHandler.getHandler());</strong><br>返回一个适配Controller的处理器，默认的处理器有三种:</p>
+<ul>
+<li>RequestMappingHandlerAdapter</li>
+<li>HttpRequestHandlerAdapter</li>
+<li>SimpleControllerHandlerAdapter</li>
+</ul>
+<p>返回第一个支持的HandlerAdapter，这里是RequestMappingHandlerAdapter。<br>对应的log中的如下信息：</p>
+</blockquote>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">15:46:20.844 TRACE o.s.w.s.DispatcherServlet - Testing handler adapter [org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerAdapter@12599347]</div></pre></td></tr></table></figure>
+<blockquote>
+<p><strong>mv = ha.handle(processedRequest, response, mappedHandler.getHandler());</strong><br>这行代码是实际处理reques请求的调用入口，将由RequestMappingHandlerAdapter完成调用任务</p>
+</blockquote>
+<h3 id="RequestMappingHandlerAdapter"><a href="#RequestMappingHandlerAdapter" class="headerlink" title="RequestMappingHandlerAdapter"></a><em>RequestMappingHandlerAdapter</em></h3><p>先来看一下RequestMappingHandlerAdapter的类说明注释<br><figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div></pre></td><td class="code"><pre><div class="line"><span class="comment">/**</span></div><div class="line"> * An &#123;<span class="doctag">@link</span> AbstractHandlerMethodAdapter&#125; that supports &#123;<span class="doctag">@link</span> HandlerMethod&#125;s</div><div class="line"> * with their method argument and return type signature, as defined via</div><div class="line"> * &#123;<span class="doctag">@code</span> <span class="doctag">@RequestMapping</span>&#125;.</div><div class="line"> * ...</div><div class="line"> */</div><div class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">RequestMappingHandlerAdapter</span> <span class="keyword">extends</span> <span class="title">AbstractHandlerMethodAdapter</span></span></div><div class="line">		<span class="keyword">implements</span> <span class="title">BeanFactoryAware</span>, <span class="title">InitializingBean</span> &#123;</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
+<p>RequestMappingHandlerAdapter适配所有用@RequestMapping注解的类和方法。当http请求找到url对应的controller后，RequestMappingHandlerAdapter类会调用invokeHandlerMethod方法<br><figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">protected</span> ModelAndView <span class="title">invokeHandlerMethod</span><span class="params">(HttpServletRequest request,</span></span></div><div class="line">	HttpServletResponse response, HandlerMethod handlerMethod) <span class="keyword">throws</span> Exception &#123;</div><div class="line">  ServletWebRequest webRequest = <span class="keyword">new</span> ServletWebRequest(request, response);</div><div class="line">  <span class="keyword">try</span> &#123;</div><div class="line">    WebDataBinderFactory binderFactory = getDataBinderFactory(handlerMethod);</div><div class="line">    ModelFactory modelFactory = getModelFactory(handlerMethod, binderFactory);</div><div class="line">    </div><div class="line">    ServletInvocableHandlerMethod invocableMethod = createInvocableHandlerMethod(handlerMethod);</div><div class="line">    invocableMethod.setHandlerMethodArgumentResolvers(<span class="keyword">this</span>.argumentResolvers);</div><div class="line">    invocableMethod.setHandlerMethodReturnValueHandlers(<span class="keyword">this</span>.returnValueHandlers);</div><div class="line">    invocableMethod.setDataBinderFactory(binderFactory);</div><div class="line">    invocableMethod.setParameterNameDiscoverer(<span class="keyword">this</span>.parameterNameDiscoverer);</div><div class="line">    </div><div class="line">    ModelAndViewContainer mavContainer = <span class="keyword">new</span> ModelAndViewContainer(); </div><div class="line">    ...</div><div class="line">    invocableMethod.invokeAndHandle(webRequest, mavContainer);</div><div class="line">    ...</div><div class="line">    <span class="keyword">return</span> getModelAndView(mavContainer, modelFactory, webRequest);</div><div class="line">  &#125;</div><div class="line">  <span class="keyword">finally</span> &#123;</div><div class="line">  	webRequest.requestCompleted();</div><div class="line">  &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
+<blockquote>
+<p><strong>ServletInvocableHandlerMethod invocableMethod = createInvocableHandlerMethod(handlerMethod);</strong><br>创建一个ServletInvocableHandlerMethod类，这个类继承自InvocableHandlerMethod类，具有处理返回值的能力。<br><strong>invocableMethod.setHandlerMethodArgumentResolvers(this.argumentResolvers);</strong><br>设置参数解析器集合HandlerMethodArgumentResolverComposite，其内部有一个HandlerMethodArgumentResolver链表，spring mvc默认的参数解析器有26个，如图：</p>
+</blockquote>
+<p><img src="HandlerMethodArgumentResolverComposite--LinkedList.png" alt="HandlerMethodArgumentResolverComposite--LinkedList"></p>
+<blockquote>
+<p><strong>invocableMethod.setHandlerMethodReturnValueHandlers(this.returnValueHandlers);</strong><br>设置返回值处理器集合HandlerMethodReturnValueHandlerComposite，其内部有一个HandlerMethodReturnValueHandler链表，spring mvc默认的返回值处理器有15个，如图：</p>
+</blockquote>
+<p><img src="HandlerMethodReturnValueHandler--LinkedList.png" alt="HandlerMethodReturnValueHandler--LinkedList"></p>
+<blockquote>
+<p><strong>invocableMethod.setDataBinderFactory(binderFactory);</strong><br>设置与@InitBinder有关的注解<br><strong>invocableMethod.setParameterNameDiscoverer(this.parameterNameDiscoverer);</strong><br>设置参数名发现器ParameterNameDiscoverer，其内部有一个ParameterNameDiscoverer链表，默认的有2个，如图：</p>
+</blockquote>
+<p><img src="ParameterNameDiscoverer--LinkedList.png" alt="ParameterNameDiscoverer--LinkedList"></p>
+<blockquote>
+<p><strong>invocableMethod.invokeAndHandle(webRequest, mavContainer);</strong><br>ReqeustMappingHandlerAdapter将http请求处理交给ServletInvocableHandlerMethod类做处理,由它完成参数请求参数赋值、调用Controller和返回参数转换，</p>
+</blockquote>
+<h3 id="ServletInvocableHandlerMethod"><a href="#ServletInvocableHandlerMethod" class="headerlink" title="ServletInvocableHandlerMethod"></a><em>ServletInvocableHandlerMethod</em></h3><p>类继承图：<br><img src="ServletInvocableHandlerMethod--Hierarchy.png" alt="ServletInvocableHandlerMethod--Hierarchy"><br>前面讲过ServletInvocableHandlerMethod增加了处理返回值的能力，在方法invokeAndHandle中，它会调用父类中的invokeForRequest方法获得Controller中待调用方法的参数值并使用反射调用方法，再处理返回值。</p>
+<h4 id="InvocableHandlerMethod"><a href="#InvocableHandlerMethod" class="headerlink" title="InvocableHandlerMethod"></a><em>InvocableHandlerMethod</em></h4><figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div><div class="line">43</div><div class="line">44</div><div class="line">45</div><div class="line">46</div><div class="line">47</div><div class="line">48</div><div class="line">49</div><div class="line">50</div><div class="line">51</div><div class="line">52</div><div class="line">53</div><div class="line">54</div><div class="line">55</div><div class="line">56</div><div class="line">57</div><div class="line">58</div><div class="line">59</div><div class="line">60</div></pre></td><td class="code"><pre><div class="line"><span class="comment">/**</span></div><div class="line"> * Provides a method for invoking the handler method for a given request after resolving its</div><div class="line"> * method argument values through registered &#123;<span class="doctag">@link</span> HandlerMethodArgumentResolver&#125;s.</div><div class="line"> *</div><div class="line"> * Argument resolution often requires a &#123;<span class="doctag">@link</span> WebDataBinder&#125; for data binding or for type</div><div class="line"> * conversion. Use the &#123;<span class="doctag">@link</span> #setDataBinderFactory(WebDataBinderFactory)&#125; property to supply</div><div class="line"> * a binder factory to pass to argument resolvers.</div><div class="line"> */</div><div class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">InvocableHandlerMethod</span> <span class="keyword">extends</span> <span class="title">HandlerMethod</span> </span>&#123;</div><div class="line">  <span class="function"><span class="keyword">public</span> Object <span class="title">invokeForRequest</span><span class="params">(NativeWebRequest request, ModelAndViewContainer mavContainer,</span></span></div><div class="line">    Object... providedArgs) <span class="keyword">throws</span> Exception &#123;</div><div class="line">    Object[] args = getMethodArgumentValues(request, mavContainer, providedArgs);</div><div class="line">		<span class="keyword">if</span> (logger.isTraceEnabled()) &#123;</div><div class="line">			StringBuilder sb = <span class="keyword">new</span> StringBuilder(<span class="string">"Invoking ["</span>);</div><div class="line">			sb.append(getBeanType().getSimpleName()).append(<span class="string">"."</span>);</div><div class="line">			sb.append(getMethod().getName()).append(<span class="string">"] method with arguments "</span>);</div><div class="line">			sb.append(Arrays.asList(args));</div><div class="line">			logger.trace(sb.toString());</div><div class="line">		&#125;</div><div class="line">		Object returnValue = doInvoke(args);</div><div class="line">		<span class="keyword">if</span> (logger.isTraceEnabled()) &#123;</div><div class="line">			logger.trace(<span class="string">"Method ["</span> + getMethod().getName() + <span class="string">"] returned ["</span> + returnValue + <span class="string">"]"</span>);</div><div class="line">		&#125;</div><div class="line">		<span class="keyword">return</span> returnValue;</div><div class="line">  &#125;</div><div class="line"></div><div class="line">  <span class="keyword">private</span> Object[] getMethodArgumentValues(NativeWebRequest request, ModelAndViewContainer mavContainer,</div><div class="line">    Object... providedArgs) <span class="keyword">throws</span> Exception &#123;</div><div class="line">    MethodParameter[] parameters = getMethodParameters();</div><div class="line">    Object[] args = <span class="keyword">new</span> Object[parameters.length];</div><div class="line">    <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; parameters.length; i++) &#123;</div><div class="line">      MethodParameter parameter = parameters[i];</div><div class="line">      parameter.initParameterNameDiscovery(<span class="keyword">this</span>.parameterNameDiscoverer);</div><div class="line">      GenericTypeResolver.resolveParameterType(parameter, getBean().getClass());</div><div class="line">      args[i] = resolveProvidedArgument(parameter, providedArgs);</div><div class="line">      <span class="keyword">if</span> (args[i] != <span class="keyword">null</span>) &#123;</div><div class="line">        <span class="keyword">continue</span>;</div><div class="line">	  &#125;</div><div class="line">      <span class="keyword">if</span> (<span class="keyword">this</span>.argumentResolvers.supportsParameter(parameter)) &#123;</div><div class="line">        <span class="keyword">try</span> &#123;</div><div class="line">				args[i] = <span class="keyword">this</span>.argumentResolvers.resolveArgument(</div><div class="line">						parameter, mavContainer, request, <span class="keyword">this</span>.dataBinderFactory);</div><div class="line">				<span class="keyword">continue</span>;</div><div class="line">			&#125;</div><div class="line">			<span class="keyword">catch</span> (Exception ex) &#123;</div><div class="line">				<span class="keyword">if</span> (logger.isDebugEnabled()) &#123;</div><div class="line">					logger.debug(getArgumentResolutionErrorMessage(<span class="string">"Error resolving argument"</span>, i),ex);</div><div class="line">				&#125;</div><div class="line">				<span class="keyword">throw</span> ex;</div><div class="line">			&#125;</div><div class="line">		&#125;</div><div class="line">		<span class="keyword">if</span> (args[i] == <span class="keyword">null</span>) &#123;</div><div class="line">			String msg = getArgumentResolutionErrorMessage(<span class="string">"No suitable resolver for argument"</span>, i);</div><div class="line">			<span class="keyword">throw</span> <span class="keyword">new</span> IllegalStateException(msg);</div><div class="line">		&#125;</div><div class="line">	&#125;</div><div class="line">		<span class="keyword">return</span> args;</div><div class="line"> &#125;</div><div class="line"></div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>在InvocableHandlerMethod类中我们关注两个方法</p>
+<ul>
+<li>invokeForRequest<br>在获得Controller方法的参数值后调用Controller方法，参数值通过HandlerMethodArgumentResolver方法解析器来解析</li>
+<li>getMethodArgumentValues<br>从当前request中获得方法参数值，通过HandlerMethodArgumentResolverComposite中的supportParameter方法，从HandlerMethodArgumentResolver链表中找到一个支持的解析器，并将它放在一个Map中缓存起来，加快一次读取。给出主要代码块<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div></pre></td><td class="code"><pre><div class="line"><span class="comment">/**</span></div><div class="line"> * Find a registered &#123;<span class="doctag">@link</span> HandlerMethodArgumentResolver&#125; that supports the given method parameter.</div><div class="line"> */</div><div class="line"><span class="function"><span class="keyword">private</span> HandlerMethodArgumentResolver <span class="title">getArgumentResolver</span><span class="params">(MethodParameter parameter)</span> </span>&#123;</div><div class="line">  HandlerMethodArgumentResolver result = <span class="keyword">this</span>.argumentResolverCache.get(parameter);</div><div class="line">  <span class="keyword">if</span> (result == <span class="keyword">null</span>) &#123;</div><div class="line">    <span class="keyword">for</span> (HandlerMethodArgumentResolver methodArgumentResolver : <span class="keyword">this</span>.argumentResolvers) &#123;</div><div class="line">      <span class="keyword">if</span> (logger.isTraceEnabled()) &#123;</div><div class="line">        logger.trace(<span class="string">"Testing if argument resolver ["</span> + methodArgumentResolver + <span class="string">"] supports "</span> +</div><div class="line">          parameter.getGenericParameterType() + <span class="string">"]"</span>);</div><div class="line">      &#125;</div><div class="line">      <span class="keyword">if</span> (methodArgumentResolver.supportsParameter(parameter)) &#123;</div><div class="line">        result = methodArgumentResolver;</div><div class="line">        <span class="keyword">this</span>.argumentResolverCache.put(parameter, result);</div><div class="line">        <span class="keyword">break</span>;</div><div class="line">      &#125;</div><div class="line">    &#125;</div><div class="line">  &#125;</div><div class="line">  <span class="keyword">return</span> result;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+</li>
+</ul>
+<p>前面说到HandlerMethodArgumentResolverComposite是由26个参数解析器组成，在本次请求中，满足支持的解析器是RequestParamMethodArgumentResolver，对应的log日志：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line"></div><div class="line">10:07:28.393 TRACE o.s.w.m.s.HandlerMethodArgumentResolverComposite - Testing if argument resolver [org.springframework.web.method.annotation.RequestParamMethodArgumentResolver@336e702f] supports [class java.lang.String]</div><div class="line">...</div><div class="line">10:07:28.521 TRACE o.s.w.m.s.HandlerMethodArgumentResolverComposite - Testing if argument resolver [org.springframework.web.method.annotation.RequestParamMethodArgumentResolver@398bdb86] supports [class java.lang.String]</div></pre></td></tr></table></figure></p>
+<p>找到解析器后调用解析器的resolveArgument方法，获得参数值。对应的log日志：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">10:26:53.245 TRACE o.s.w.s.m.m.a.ServletInvocableHandlerMethod - Invoking [BasicController.get] method with arguments [java]</div></pre></td></tr></table></figure></p>
+<p><code>至此从request请求中获取方法参数值的主要过程结束。</code><br>完成controller方法调用后对应日志：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">10:27:49.102 TRACE o.s.w.s.m.m.a.ServletInvocableHandlerMethod - Method [get] returned [hello world: java]</div></pre></td></tr></table></figure></p>
+<blockquote>
+<p><strong>this.returnValueHandlers.handleReturnValue(returnValue, getReturnValueType(returnValue), mavContainer, webRequest);</strong><br>处理返回值，从HandlerMethodReturnValueHandlerComposite中的HandlerMethodReturnValueHandler链表找到第一个匹配的处理器类，本次请求匹配的处理器类是RequestResponseBodyMethodProcessor,并交予RequestResponseBodyMethodProcessor处理返回值</p>
+</blockquote>
+<h3 id="RequestResponseBodyMethodProcessor"><a href="#RequestResponseBodyMethodProcessor" class="headerlink" title="RequestResponseBodyMethodProcessor"></a><em>RequestResponseBodyMethodProcessor</em></h3><figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div></pre></td><td class="code"><pre><div class="line"><span class="comment">/**</span></div><div class="line"> * Resolves method arguments annotated with &#123;<span class="doctag">@code</span> <span class="doctag">@RequestBody</span>&#125; and handles return</div><div class="line"> * values from methods annotated with &#123;<span class="doctag">@code</span> <span class="doctag">@ResponseBody</span>&#125; by reading and writing</div><div class="line"> * to the body of the request or response with an &#123;<span class="doctag">@link</span> HttpMessageConverter&#125;.</div><div class="line"> *</div><div class="line"> * &lt;p&gt;An &#123;<span class="doctag">@code</span> <span class="doctag">@RequestBody</span>&#125; method argument is also validated if it is annotated</div><div class="line"> * with &#123;<span class="doctag">@code</span> <span class="doctag">@javax</span>.validation.Valid&#125;. In case of validation failure,</div><div class="line"> * &#123;<span class="doctag">@link</span> MethodArgumentNotValidException&#125; is raised and results in an HTTP 400</div><div class="line"> */</div><div class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">RequestResponseBodyMethodProcessor</span> <span class="keyword">extends</span> <span class="title">AbstractMessageConverterMethodProcessor</span> </span>&#123;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>继承自AbstractMessageConverterMethodProcessor，处理@RequestBody和@ResponseBody的注解。<br>观察已经获得的日志<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">DEBUG o.s.w.s.m.m.a.RequestResponseBodyMethodProcessor - Written [hello world: java] as &quot;text/plain&quot; using [org.springframework.http.converter.StringHttpMessageConverter@4db079f9]</div></pre></td></tr></table></figure></p>
+<p>我们会发现一个<strong><a href="http://docs.spring.io/spring/docs/current/javadoc-api//org/springframework/http/converter/StringHttpMessageConverter.html" target="_blank" rel="external">StringHttpMessageConverter</a></strong>类，从名字可以猜到，这是一个转换String类型的http message的类。跟踪一下继承结构：<br><img src="StringHttpMessageConverter--Hierarchy.png" alt="StringHttpMessageConverter--Hierarchy"><br><figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line"><span class="comment">/**</span></div><div class="line"> * Strategy interface that specifies a converter that can convert from and to HTTP requests and responses.</div><div class="line"> * ...</div><div class="line"> */</div><div class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">interface</span> <span class="title">HttpMessageConverter</span>&lt;<span class="title">T</span>&gt; </span>&#123;</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
+<p>接口<strong><a href="http://docs.spring.io/spring/docs/current/javadoc-api//org/springframework/http/converter/HttpMessageConverter.html" target="_blank" rel="external">HttpMessageConverter</a></strong>，这是一个策略接口，定义将http请求体或响应体转换成指定的数据类型，接口定义如下：<br><img src="Interface-Diagram-HttpMessageConverter.png" alt="Interface-Digram-HttpMessageConverter"><br>接口解释</p>
+<style type="text/css">
+table th:first-of-type {
+    width: 115px;
+}
+</style>
+
+<table>
+<thead>
+<tr>
+<th style="text-align:left">Modifier and Type</th>
+<th style="text-align:left">Method</th>
+<th style="text-align:left">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left">boolean</td>
+<td style="text-align:left">canRead(Class&lt;?&gt; clazz,MediaType mediaType)</td>
+<td style="text-align:left">Indicates whether the given class can be read by this converter.</td>
+</tr>
+<tr>
+<td style="text-align:left">boolean</td>
+<td style="text-align:left">canWrite(Class&lt;?&gt; clazz, MediaType mediaType)</td>
+<td style="text-align:left">Indicates whether the given class can be written by this converter.</td>
+</tr>
+<tr>
+<td style="text-align:left">T</td>
+<td style="text-align:left">read(Class&lt;? extends T&gt; clazz,HttpInputMessage inputMessage)</td>
+<td style="text-align:left">Read an object of the given type from the given input message, and returns it.</td>
+</tr>
+<tr>
+<td style="text-align:left">void</td>
+<td style="text-align:left">write(T t, MediaType contentType, HttpOutputMessage outputMessage)</td>
+<td style="text-align:left">Write an given object to the given output message.</td>
+</tr>
+<tr>
+<td style="text-align:left">List<mediatype></mediatype></td>
+<td style="text-align:left">getSupportedMediaTypes()</td>
+<td style="text-align:left">Return the list of MediaType objects supported by this converter.</td>
+</tr>
+</tbody>
+</table>
+<p>从继承图上可以看到有多个HttMessageConverter实现类。了解这些后回到程序，刚刚程序已经拿到了方法调用的返回值了，RequestResponseBodyMethodProcessor会调用父类中的writeWithMessageConverters方法，这个方法中有一个for 循环<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div></pre></td><td class="code"><pre><div class="line">for (HttpMessageConverter&lt;?&gt; messageConverter : this.messageConverters) &#123;</div><div class="line">  if (messageConverter.canWrite(valueType, selectedMediaType)) &#123;</div><div class="line">  	outputValue = (T) getAdvice().beforeBodyWrite(outputValue, returnType, selectedMediaType,</div><div class="line">      (Class&lt;? extends HttpMessageConverter&lt;?&gt;&gt;) messageConverter.getClass(),</div><div class="line">      inputMessage, outputMessage);</div><div class="line">    ...</div><div class="line">  &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
+<p>遍历所有Converters，在本次请求中符合条件的就是StringHttpMessageConverter转换器类。<br>到这里reqeust请求结束</p>
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <div>
+      
+        
+  <div style="padding: 10px 0; margin: 20px auto; width: 90%; text-align: center;">
+    <div>坚持原创技术分享-我们相互鼓励</div>
+    <button id="rewardButton" disable="enable" onclick="var qr = document.getElementById('QR'); if (qr.style.display === 'none') {qr.style.display='block';} else {qr.style.display='none'}">
+      <span>赏</span>
+    </button>
+    <div id="QR" style="display: none;">
+      
+        <div id="wechat" style="display: inline-block">
+          <img id="wechat_qr" src="/images/wechats.jpg" alt="xiurierye WeChat Pay"/>
+          <p>微信打赏</p>
+        </div>
+      
+      
+    </div>
+  </div>
+
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/maven/" rel="tag"># maven</a>
+          
+            <a href="/tags/spring-mvc/" rel="tag"># spring-mvc</a>
+          
+            <a href="/tags/scala/" rel="tag"># scala</a>
+          
+            <a href="/tags/jackson/" rel="tag"># jackson</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/scala/jackson/spring-mvc/maven/spring-mvc-scala-output/" rel="next" title="Spring中jackson-module-scala的源码分析（一）">
+                <i class="fa fa-chevron-left"></i> Spring中jackson-module-scala的源码分析（一）
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/uncategorized/testmypost/" rel="prev" title="testmypost">
+                testmypost <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+  <div class="comments" id="comments">
+    
+      <div id="disqus_thread">
+        <noscript>
+          Please enable JavaScript to view the
+          <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a>
+        </noscript>
+      </div>
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            Table of Contents
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            Overview
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image"
+               src="/images/profilephoto.png"
+               alt="xiurierye" />
+          <p class="site-author-name" itemprop="name">xiurierye</p>
+           
+              <p class="site-description motion-element" itemprop="description">吃鲷鱼会打嗝</p>
+          
+        </div>
+        <nav class="site-state motion-element">
+
+          
+            <div class="site-state-item site-state-posts">
+              <a href="/archives/">
+                <span class="site-state-item-count">6</span>
+                <span class="site-state-item-name">posts</span>
+              </a>
+            </div>
+          
+
+          
+            
+            
+            <div class="site-state-item site-state-categories">
+              <a href="/categories/index.html">
+                <span class="site-state-item-count">8</span>
+                <span class="site-state-item-name">categories</span>
+              </a>
+            </div>
+          
+
+          
+            
+            
+            <div class="site-state-item site-state-tags">
+              <a href="/tags/index.html">
+                <span class="site-state-item-count">6</span>
+                <span class="site-state-item-name">tags</span>
+              </a>
+            </div>
+          
+
+        </nav>
+
+        
+          <div class="feed-link motion-element">
+            <a href="/atom.xml" rel="alternate">
+              <i class="fa fa-rss"></i>
+              RSS
+            </a>
+          </div>
+        
+
+        <div class="links-of-author motion-element">
+          
+            
+              <span class="links-of-author-item">
+                <a href="https://github.com/xiurierye/" target="_blank" title="GitHub">
+                  
+                    <i class="fa fa-fw fa-github"></i>
+                  
+                  GitHub
+                </a>
+              </span>
+            
+          
+        </div>
+
+        
+        
+
+        
+        
+
+        
+
+
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#spring-mvc的http请求代码分析"><span class="nav-number">1.</span> <span class="nav-text">spring mvc的http请求代码分析</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#一个最简单的GET请求"><span class="nav-number">1.1.</span> <span class="nav-text">一个最简单的GET请求</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#DispatcherServlet"><span class="nav-number">1.1.1.</span> <span class="nav-text">DispatcherServlet</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#RequestMappingHandlerAdapter"><span class="nav-number">1.1.2.</span> <span class="nav-text">RequestMappingHandlerAdapter</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#ServletInvocableHandlerMethod"><span class="nav-number">1.1.3.</span> <span class="nav-text">ServletInvocableHandlerMethod</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#InvocableHandlerMethod"><span class="nav-number">1.1.3.1.</span> <span class="nav-text">InvocableHandlerMethod</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#RequestResponseBodyMethodProcessor"><span class="nav-number">1.1.4.</span> <span class="nav-text">RequestResponseBodyMethodProcessor</span></a></li></ol></li></ol></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy; 
+  <span itemprop="copyrightYear">2017</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">xiurierye</span>
+</div>
+
+
+<div class="powered-by">
+  Powered by <a class="theme-link" href="https://hexo.io">Hexo</a>
+</div>
+
+<div class="theme-info">
+  Theme -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Muse
+  </a>
+</div>
+
+
+        
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.1"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.1"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.1"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.1"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.1"></script>
+
+
+
+  
+
+
+  
+
+    
+      <script id="dsq-count-scr" src="https://xiurierye.disqus.com/count.js" async></script>
+    
+
+    
+      <script type="text/javascript">
+        var disqus_config = function () {
+          this.page.url = 'http://xiurierye.github.io/scala/jackson/spring-mvc/maven/HttpMessageConverter/';
+          this.page.identifier = 'scala/jackson/spring-mvc/maven/HttpMessageConverter/';
+          this.page.title = 'Spring中jackson-module-scala的源码分析（二）';
+        };
+        var d = document, s = d.createElement('script');
+        s.src = 'https://xiurierye.disqus.com/embed.js';
+        s.setAttribute('data-timestamp', '' + +new Date());
+        (d.head || d.body).appendChild(s);
+      </script>
+    
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>
